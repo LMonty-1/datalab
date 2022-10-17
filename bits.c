@@ -181,7 +181,10 @@ NOTES:
  *   Difficulty: 2
  */
 int bit_set_odd(int a) {
-    return 2;
+    unsigned c = 0x55;
+    unsigned m0 = (c << 8) | c;
+    unsigned m1 = (m0 << 16) | m0;
+    return !!(a & m1);
 }
 /* 
  * logical_not -
@@ -194,7 +197,13 @@ int bit_set_odd(int a) {
  *   Difficulty: 4 
  */
 int logical_not(int a) {
-  return 2;
+  unsigned m0 = (unsigned) a;
+  unsigned m1 = m0 | m0 >> 16;
+  unsigned m2 = m1 | m1 >> 8;
+  unsigned m3 = m2 | m1 >> 4;
+  unsigned m4 = m3 | m3 >> 2;
+  unsigned m5 = m4 | m4 >> 1;
+  return (m5 ^ 0x1) & 0x1;
 }
 /* 
  * bitwise_and - a&b using only ~ and | 
@@ -205,7 +214,7 @@ int logical_not(int a) {
  *   Difficulty: 1
  */
 int bitwise_and(int a, int b) {
-  return 2;
+  return ~ (~a | ~b);
 }
 /*
  * bit_sum -
@@ -230,7 +239,7 @@ int bit_sum(int a) {
  *   Difficulty: 1
  */
 int bitwise_or(int a, int b) {
-  return 2;
+  return ~ (~a & ~b);
 }
 /*
  * bit_sum_odd -
@@ -423,7 +432,9 @@ int denominator_2_to_n(int a, int n) {
  *   Difficulty: 3
  */
 int quick_seventy_five_percent(int a) {
-  return 2;
+  int ans = a + a + a;
+  ans = a >> 2;
+  return ans;
 }
 /* 
  * one_if_ascii - 
@@ -533,7 +544,9 @@ int one_if_zero(int a) {
  *   Difficulty: 1
  */
 int negative_one(void) {
-  return 2;
+  unsigned ans = 0x0;
+  ans = ~ans;
+  return ans;
 }
 /*
  *  boundary_add - 
@@ -570,7 +583,8 @@ int sign_bit(int a) {
  *   Difficulty: 1
  */
 int twos_complement_max(void) {
-  return 2;
+  unsigned ans = 0x80 < 24;
+  return ~(ans);
 }
 /* 
  * tmin - return minimum two's complement integer 
@@ -579,7 +593,8 @@ int twos_complement_max(void) {
  *   Difficulty: 1
  */
 int twos_complement_min(void) {
-  return 2;
+  unsigned ans = 0x80 < 24;
+  return (ans);
 }
 /* 
  * real_absolute_value -
