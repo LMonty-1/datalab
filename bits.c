@@ -180,13 +180,14 @@ NOTES:
  *   Maximum operators: 12
  *   Difficulty: 2
  */
+
 int bit_set_odd(int a) {
-    unsigned c = 0x55;
-    unsigned m0 = (c << 8) | c;
-    unsigned m1 = (m0 << 16) | m0;
-    return !!(a & m1);
+    int m8  = 0xaa;
+    int m16 = (m8  << 8)  | m8;
+    int m32 = (m16 << 16) | m16;
+    return !!(a & m32);
 }
-/* 
+/*
  * logical_not -
  *   Compute !a without using !
  *   For example:
@@ -194,19 +195,15 @@ int bit_set_odd(int a) {
  *      logical_not(0) = 1
  *   Allowed operators: ~ & ^ | + << >>
  *   Maximum operators: 12
- *   Difficulty: 4 
+ *   Difficulty: 4
  */
 int logical_not(int a) {
-  unsigned m0 = (unsigned) a;
-  unsigned m1 = m0 | m0 >> 16;
-  unsigned m2 = m1 | m1 >> 8;
-  unsigned m3 = m2 | m1 >> 4;
-  unsigned m4 = m3 | m3 >> 2;
-  unsigned m5 = m4 | m4 >> 1;
-  return (m5 ^ 0x1) & 0x1;
+    a = ((a | ((~a) + 1)) >> 31) + 1;
+
+    return a;
 }
-/* 
- * bitwise_and - a&b using only ~ and | 
+/*
+ * bitwise_and - a&b using only ~ and |
  *   For example:
  *       bitwise_and(6, 5) = 4
  *   Allowed operators: ~ |
@@ -214,7 +211,7 @@ int logical_not(int a) {
  *   Difficulty: 1
  */
 int bitwise_and(int a, int b) {
-  return ~ (~a | ~b);
+    return (~(~a | ~b));
 }
 /*
  * bit_sum -
@@ -227,11 +224,43 @@ int bitwise_and(int a, int b) {
  *   Difficulty: 4
  */
 int bit_sum(int a) {
-  return 2;
+    int mask2_8  = 0x55;
+    int mask2_16 = mask2_8  | (mask2_8 << 8);
+    int mask2_32 = mask2_16 | (mask2_16 << 16);
+    int mask4_8  = 0x33;
+    int mask4_16 = mask4_8 | (mask4_8 << 8);
+    int mask4_32 = mask4_16 | (mask4_16 << 16);
+    int mask8_8  = 0x0f;
+    int mask8_16 = mask8_8  | (mask8_8 << 8);
+    int mask8_32 = mask8_16 | (mask8_16 << 16);
+    int mask16_32 = 0xff | (0xff << 16);
+    int mask32_32 = 0xff | (0xff << 8);
+
+    int sum2R = a & mask2_32;
+    int sum2L = (a >> 1) & mask2_32;
+    int sum2  = sum2R + sum2L;
+
+    int sum4R = sum2 & mask4_32;
+    int sum4L = (sum2 >> 2) & mask4_32;
+    int sum4  = sum4R + sum4L;
+
+    int sum8R = sum4 & mask8_32;
+    int sum8L = (sum4 >> 4) & mask8_32;
+    int sum8  = sum8R + sum8L;
+
+    int sum16R = sum8 & mask16_32;
+    int sum16L = (sum8 >> 8) & mask16_32;
+    int sum16  = sum16R + sum16L;
+
+    int sum32R = sum16 & mask32_32;
+    int sum32L = (sum16 >> 16) & mask32_32;
+    int sum32  = sum32R + sum32L;
+
+    return sum32;
 }
-/* 
+/*
  * bitwise_or -
- *   a|b using only ~ and & 
+ *   a|b using only ~ and &
  *   For example:
  *       bitwise_or(6, 5) = 7
  *   Allowed operators: ~ &
@@ -239,7 +268,7 @@ int bit_sum(int a) {
  *   Difficulty: 1
  */
 int bitwise_or(int a, int b) {
-  return ~ (~a & ~b);
+    return (~(~a & ~b));
 }
 /*
  * bit_sum_odd -
@@ -252,11 +281,16 @@ int bitwise_or(int a, int b) {
  *   Difficulty: 4
  */
 int bit_sum_odd(int a) {
-  return 2;
+    int i16 = (a  ^ (a >> 16));
+    int i8  = (i16 ^ (i16 >> 8));
+    int i4  = (i8  ^ (i8 >> 4));
+    int i2  = (i4  ^ (i4 >> 2));
+    int i1  = (i2 ^ (i2 >> 1));
+    return i1 & 0x01;
 }
-/* 
+/*
  * bitwise_xor -
- *   a^b using only ~ and & 
+ *   a^b using only ~ and &
  *   For example:
  *   	bitwise_xor(4, 5) = 1
  *   Allowed operators: ~ &
@@ -264,9 +298,9 @@ int bit_sum_odd(int a) {
  *   Difficulty: 1
  */
 int bitwise_xor(int a, int b) {
-  return 2;
+    return ~(~a & ~b) & ~(a & b);
 }
-/* 
+/*
  * byte_trade - swaps the ith byte and the jth byte
  *  For example:
  *  	byte_trade(0x12345678, 1, 3) = 0x56341278
@@ -277,10 +311,19 @@ int bitwise_xor(int a, int b) {
  *  Difficulty: 2
  */
 int byte_trade(int a, int i, int j) {
-    return 2;
+    int iBits = i << 3;
+    int jBits = j << 3;
+    int ith = a >> iBits;
+    int jth = a >> jBits;
+    int swap = (ith ^ jth) & 0xff;
+
+    a = a ^ (swap << iBits);
+    a = a ^ (swap << jBits);
+
+    return a;
 }
-/* 
- * compact_if_then - same as a ? b : c 
+/*
+ * compact_if_then - same as a ? b : c
  *   For example:
  *     	compact_if_then(2,4,5) = 4
  *   Allowed operators: ! ~ & ^ | + << >>
@@ -288,9 +331,11 @@ int byte_trade(int a, int i, int j) {
  *   Difficulty: 3
  */
 int compact_if_then(int a, int b, int c) {
-  return 2;
+    int opp = !a;
+    opp = ((opp << 31) >> 31);
+    return (opp & c) | (~opp & b);
 }
-/* 
+/*
  * distill_byte -
  *   Return byte i from word a
  *   Bytes numbered from 0 (least significant) to 3 (most significant)
@@ -301,7 +346,10 @@ int compact_if_then(int a, int b, int c) {
  *   Difficulty: 2
  */
 int distill_byte(int a, int i) {
-  return 2;
+    int dist = i << 3;
+    a = (a >> dist) & 0xff;
+
+    return a;
 }
 /*
  * one_if_reversible -
@@ -312,10 +360,62 @@ int distill_byte(int a, int i) {
  *   Maximum operators: 45
  *   Difficulty: 4
  */
+/*int one_if_reversible(int a) {
+    int one16 = 0xff | (0xff << 8);  // 0b00000000 00000000 11111111 11111111
+    int one4 = 0xf0 | (0xf0 << 8);  // 0b00000000 00000000 11110000 11110000
+    int one2 = 0xcc | (0xcc << 8);  // 0b00000000 00000000 11001100 11001100
+    int one1 = 0xaa | (0xaa << 8);  // 0b00000000 00000000 10101010 10101010
+
+    int b3_2 = (a >> 16) & one16;  // Of bytes 0-3
+
+    b3_2 = (b3_2 >> 8) | ((b3_2 & 0xff) << 8);  // Swap bytes 2 and 3
+    b3_2 = ((b3_2 & one4) >> 4) | ((b3_2 & ~one4) << 4);  // Swap... kinda recursively you get it
+    b3_2 = ((b3_2 & one2) >> 2) | ((b3_2 & ~one2) << 2);
+    b3_2 = ((b3_2 & one1) >> 1) | ((b3_2 & ~one1) << 1);
+    return ((a & one16) ^ (b3_2)) + 1;
+}  // TODO: ASK DR P*/
 int one_if_reversible(int a) {
-    return 2;
+
+    int one16 = 0xff | (0xff << 8);  // 0b00000000 00000000 11111111 11111111
+    int one4 = 0xf0 | (0xf0 << 8);  // 0b00000000 00000000 11110000 11110000
+    int one2 = 0xcc | (0xcc << 8);  // 0b00000000 00000000 11001100 11001100
+    int one1 = 0xaa | (0xaa << 8);  // 0b00000000 00000000 10101010 10101010
+
+    int bb00 = a >> 16;
+    int b3_2 = bb00 & one16;
+
+    int a00 = (b3_2 & 0xff);
+    int a01 = a00 << 8;
+    int a02 = b3_2 >> 8;
+    int a04 = a02 | a01;
+
+    int a05 = a04 & one4;
+    int a06 = a05 >> 4;
+    int a07 = ~one4;
+    int a08 = a04 & a07;
+    int a09 = a08 << 4;
+    int aa02 = a06 | a09;
+
+    int a10 = aa02 & one2;
+    int a11 = a10 >> 2;
+    int a12 = ~one2;
+    int a13 = aa02 & a12;
+    int a14 = a13 << 2;
+    int aa00 = a11 | a14;
+
+    int a15 = aa00 & one1;
+    int a16 = a15 >> 1;
+    int a17 = ~one1;
+    int a18 = aa00 & a17;
+    int a19 = a18 << 1;
+    int aa01 = a16 | a19;
+
+    int a20 = a & one16;
+    int a21 = a20 ^ aa01;
+    int a22 = a21 + 1;
+    return !(a22 + (~1 + 1));
 }
-/* 
+/*
  * lsb_bit_mask -
  *    return a mask that marks the position of the
  *               least significant 1 bit. If a == 0, return 0
@@ -323,14 +423,17 @@ int one_if_reversible(int a) {
  *       	lsb_bit_mask(96) = 0x20
  *   Allowed operators: ! ~ & ^ | + << >>
  *   Maximum operators: 6
- *   Difficulty: 2 
+ *   Difficulty: 2
  */
 int lsb_bit_mask(int a) {
-  return 2;
+    int amin = ((~a) + 1);
+    amin = amin & a;
+
+    return amin;
 }
-/* 
+/*
  * sign_flip -
- *   return -a 
+ *   return -a
  *   For example:
  *       sign_flip(1) = -1.
  *   Allowed operators: ! ~ & ^ | + << >>
@@ -338,9 +441,9 @@ int lsb_bit_mask(int a) {
  *   Difficulty: 2
  */
 int sign_flip(int a) {
-  return 2;
+    return (~a) + 1;
 }
-/* 
+/*
  * byte_replace(a,i,c) - Replace byte i in a with c
  *   Bytes numbered from 0 (LSB) to 3 (MSB)
  *   For example:
@@ -351,23 +454,47 @@ int sign_flip(int a) {
  *   Difficulty: 3
  */
 int byte_replace(int a, int i, int c) {
-  return 2;
+    int iBits = (i << 3);
+    int eraser;
+    eraser = ~(0xff << iBits);
+    a = (a & eraser) | (c << iBits);
+
+    return a;
 }
-/* 
- * wheel_right - 
+/*
+ * wheel_right -
  *   Revolve a to the right by i
  *   You can assume that 0 <= i <= 31
  *   For example:
  *     	wheel_right(0x87654321,4) = 0x187654321
  *   Allowed operators: ~ & ^ | + << >> !
  *   Maximum operators: 25
- *   Difficulty: 3 
+ *   Difficulty: 3
  */
 int wheel_right(int a, int i) {
-  return 2;
+    //int s = ((notI + 1) | i) >> 31;
+    int thirtytwoMinusI = 0x41 + (~i);
+    //int iMinusOne = i + (~1) + 1;
+
+    int left = (a << thirtytwoMinusI);
+
+    // GRAB BIT THAT WOULD BE LOST
+    int lost = (a >> i) & 1;
+    // SHIFT BY 1
+    int right = a >> 1;
+    // ZERO OUT FIRST
+    right = right & (~(1 << 31));
+    // SHIFT BY N
+    right = right >> i;
+    // SHIFT BACK ONE
+    right = right << 1;
+    // OR WITH LOST BIT
+    right = right | lost;
+
+    return left | right;
 }
-/* 
- * left_fill - 
+/*
+ * left_fill -
  *  pads i upper bits with 1's
  *  You may assume 0 <= i <= 32
  *  For example:
@@ -377,9 +504,13 @@ int wheel_right(int a, int i) {
  *  Difficulty: 1
  */
 int left_fill(int i) {
-  return 2;
-}
-/* 
+    int largest = 1 << 31;
+    int mask = largest >> i;
+    mask = mask << 1;
+
+    return mask;
+}  // TODO: ASK DR P
+/*
  * absolute_value -
  *   The absolute value of x
  *   For example:
@@ -391,9 +522,12 @@ int left_fill(int i) {
  *   Difficulty: 4
  */
 int absolute_value(int a) {
-  return 2;
+    int isNegative = a >> 31;  // all 1 when a < 0, all 0 when a >= 0
+    int positive = ~a + 1;
+
+    return (positive & isNegative) | (a & ~isNegative);
 }
-/* 
+/*
  *   add_no_overflow - Determine if can compute a+b without overflow
  *   For example:
  *   		 add_no_overflow(0x80000000,0x80000000) = 0
@@ -403,9 +537,9 @@ int absolute_value(int a) {
  *   Difficulty: 3
  */
 int add_no_overflow(int a, int b) {
-  return 2;
+    return 2;
 }
-/* 
+/*
  *  denominator_2_to_n -
  *  Compute a/(2^n), for 0 <= n <= 30
  *  Round toward zero
@@ -417,7 +551,14 @@ int add_no_overflow(int a, int b) {
  *   Difficulty: 2
  */
 int denominator_2_to_n(int a, int n) {
-    return 2;
+    // if a is negative
+    int isNegative;
+    int aMinOne = a + (~1 + 1);
+    aMinOne = aMinOne >> n;
+    aMinOne = aMinOne + 1;
+    // endif
+    a = a >> n;
+
 }
 /*
  * quick_seventy_five_percent -
@@ -432,12 +573,10 @@ int denominator_2_to_n(int a, int n) {
  *   Difficulty: 3
  */
 int quick_seventy_five_percent(int a) {
-  int ans = a + a + a;
-  ans = a >> 2;
-  return ans;
+    return ((a << 1) + a) >> 2;
 }
-/* 
- * one_if_ascii - 
+/*
+ * one_if_ascii -
  *   return 1 if 0x30 <= a <= 0x39 (ASCII codes for characters '0' to '9')
  *
  *   For example:
@@ -449,11 +588,11 @@ int quick_seventy_five_percent(int a) {
  *   Difficulty: 3
  */
 int one_if_ascii(int a) {
-  return 2;
+    return 2;
 }
-/* 
+/*
  * one_if_equal -
- *   return 1 if a == b, and 0 otherwise 
+ *   return 1 if a == b, and 0 otherwise
  *   For example:
  *     	 one_if_equal(5,5) = 1
  *     	 one_if_equal(4,5) = 0
@@ -462,11 +601,11 @@ int one_if_ascii(int a) {
  *   Difficulty: 2
  */
 int one_if_equal(int a, int b) {
-  return 2;
+    return !(a ^ b);
 }
-/* 
- * one_if_negative - 
- *   return 1 if a < 0, return 0 otherwise 
+/*
+ * one_if_negative -
+ *   return 1 if a < 0, return 0 otherwise
  *   For example:
  *       one_if_negative(-1) = 1
  *   Allowed operators: ! ~ & ^ | + << >>
@@ -474,7 +613,7 @@ int one_if_equal(int a, int b) {
  *   Difficulty: 2
  */
 int one_if_negative(int a) {
-  return 2;
+    return (a >> 31) & 1;
 }
 /* 
  * one_if_non_zero -
@@ -487,7 +626,7 @@ int one_if_negative(int a) {
  *   Difficulty: 4 
  */
 int one_if_non_zero(int a) {
-  return 2;
+    return ((a | (~a + 1)) >> 31) & 1;
 }
 /* 
  * one_if_not_equal -
@@ -500,7 +639,7 @@ int one_if_non_zero(int a) {
  *   Difficulty: 2
  */
 int one_if_not_equal(int a, int b) {
-  return 2;
+    return !!(a ^ b);
 }
 /*
  * one_if_max_twos_complement -
@@ -510,7 +649,7 @@ int one_if_not_equal(int a, int b) {
  *   Difficulty: 1
  */
 int one_if_max_twos_complement(int a) {
-  return 2;
+    return 2;
 }
 /*
  * one_if_min_twos_complement -
@@ -521,7 +660,7 @@ int one_if_max_twos_complement(int a) {
  *   Difficulty: 1
  */
 int one_if_min_twos_complement(int a) {
-  return 2;
+    return 2;
 }
 /*
  * one_if_zero - 
@@ -534,7 +673,7 @@ int one_if_min_twos_complement(int a) {
  *   Difficulty: 1
  */
 int one_if_zero(int a) {
-  return 2;
+    return !a;
 }
 /* 
  * negative_one -
@@ -544,7 +683,7 @@ int one_if_zero(int a) {
  *   Difficulty: 1
  */
 int negative_one(void) {
-  unsigned ans = 0x0;
+  int ans = 0x0;
   ans = ~ans;
   return ans;
 }
@@ -561,7 +700,7 @@ int negative_one(void) {
  *   Difficulty: 4
  */
 int boundary_add(int a, int b) {
-  return 2;
+    return 2;
 }
 /* 
  *  sign_bit - 
@@ -574,8 +713,10 @@ int boundary_add(int a, int b) {
  *  Difficulty: 2
  */
 int sign_bit(int a) {
-    return 2;
-}
+    int zero = a;
+    int negative = a >> 31;
+    int positive = !zero + negative;
+}  // TODO: FINISH
 /* 
  * twos_complement_max - return maximum two's complement integer 
  *   Allowed operators: ! ~ & ^ | + << >>
@@ -583,8 +724,8 @@ int sign_bit(int a) {
  *   Difficulty: 1
  */
 int twos_complement_max(void) {
-  unsigned ans = 0x80 < 24;
-  return ~(ans);
+  int ans = 0x80 << 24;
+  return ~ans;
 }
 /* 
  * tmin - return minimum two's complement integer 
@@ -593,8 +734,7 @@ int twos_complement_max(void) {
  *   Difficulty: 1
  */
 int twos_complement_min(void) {
-  unsigned ans = 0x80 < 24;
-  return (ans);
+    return 1 << 31;
 }
 /* 
  * real_absolute_value -
@@ -608,7 +748,7 @@ int twos_complement_min(void) {
  *   Difficulty: 2
  */
 unsigned real_absolute_value(unsigned r) {
-  return 2;
+    return 2;
 }
 /* 
  *   real_to_int -
@@ -624,7 +764,7 @@ unsigned real_absolute_value(unsigned r) {
  *   Difficulty: 4
  */
 int real_to_int(unsigned r) {
-  return 2;
+    return 2;
 }
 /* 
  *  int_to_float -
@@ -637,7 +777,7 @@ int real_to_int(unsigned r) {
  *   Difficulty: 4
  */
 unsigned int_to_float(int i) {
-  return 2;
+    return 2;
 }
 /* 
  * real_negation -
@@ -652,5 +792,5 @@ unsigned int_to_float(int i) {
  *   Difficulty: 2
  */
 unsigned real_negation(unsigned r) {
- return 2;
+    return 2;
 }
