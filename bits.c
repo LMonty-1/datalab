@@ -660,7 +660,7 @@ int one_if_not_equal(int a, int b) {
  */
 int one_if_max_twos_complement(int a) {
     int max = ~(0x80 << 24);
-    return !!(a & max);
+    return !(a ^ max);
 }
 /*
  * one_if_min_twos_complement -
