@@ -360,7 +360,7 @@ int distill_byte(int a, int i) {
  *   Maximum operators: 45
  *   Difficulty: 4
  */
-int one_if_reversible(int a) {
+/*int one_if_reversible(int a) {
     int one16 = 0xff | (0xff << 8);  // 0b00000000 00000000 11111111 11111111
     int one4 = 0xf0 | (0xf0 << 8);  // 0b00000000 00000000 11110000 11110000
     int one2 = 0xcc | (0xcc << 8);  // 0b00000000 00000000 11001100 11001100
@@ -373,7 +373,48 @@ int one_if_reversible(int a) {
     b3_2 = ((b3_2 & one2) >> 2) | ((b3_2 & ~one2) << 2);
     b3_2 = ((b3_2 & one1) >> 1) | ((b3_2 & ~one1) << 1);
     return ((a & one16) ^ (b3_2)) + 1;
-}  // TODO: FIX
+}  // TODO: ASK DR P*/
+int one_if_reversible(int a) {
+
+    int one16 = 0xff | (0xff << 8);  // 0b00000000 00000000 11111111 11111111
+    int one4 = 0xf0 | (0xf0 << 8);  // 0b00000000 00000000 11110000 11110000
+    int one2 = 0xcc | (0xcc << 8);  // 0b00000000 00000000 11001100 11001100
+    int one1 = 0xaa | (0xaa << 8);  // 0b00000000 00000000 10101010 10101010
+
+    int bb00 = a >> 16;
+    int b3_2 = bb00 & one16;
+
+    int a00 = (b3_2 & 0xff);
+    int a01 = a00 << 8;
+    int a02 = b3_2 >> 8;
+    int a04 = a02 | a01;
+
+    int a05 = a04 & one4;
+    int a06 = a05 >> 4;
+    int a07 = ~one4;
+    int a08 = a04 & a07;
+    int a09 = a08 << 4;
+    int aa02 = a06 | a09;
+
+    int a10 = aa02 & one2;
+    int a11 = a10 >> 2;
+    int a12 = ~one2;
+    int a13 = aa02 & a12;
+    int a14 = a13 << 2;
+    int aa00 = a11 | a14;
+
+    int a15 = aa00 & one1;
+    int a16 = a15 >> 1;
+    int a17 = ~one1;
+    int a18 = aa00 & a17;
+    int a19 = a18 << 1;
+    int aa01 = a16 | a19;
+
+    int a20 = a & one16;
+    int a21 = a20 ^ aa01;
+    int a22 = a21 + 1;
+    return !(a22 + (~1 + 1));
+}
 /*
  * lsb_bit_mask -
  *    return a mask that marks the position of the
@@ -468,7 +509,7 @@ int left_fill(int i) {
     mask = mask << 1;
 
     return mask;
-}  // TODO: FIX
+}  // TODO: ASK DR P
 /*
  * absolute_value -
  *   The absolute value of x
@@ -510,7 +551,14 @@ int add_no_overflow(int a, int b) {
  *   Difficulty: 2
  */
 int denominator_2_to_n(int a, int n) {
-    return a >> n;
+    // if a is negative
+    int isNegative;
+    int aMinOne = a + (~1 + 1);
+    aMinOne = aMinOne >> n;
+    aMinOne = aMinOne + 1;
+    // endif
+    a = a >> n;
+
 }
 /*
  * quick_seventy_five_percent -
@@ -525,7 +573,7 @@ int denominator_2_to_n(int a, int n) {
  *   Difficulty: 3
  */
 int quick_seventy_five_percent(int a) {
-    return 2;
+    return ((a << 1) + a) >> 2;
 }
 /*
  * one_if_ascii -
@@ -625,7 +673,7 @@ int one_if_min_twos_complement(int a) {
  *   Difficulty: 1
  */
 int one_if_zero(int a) {
-    return 2;
+    return !a;
 }
 /* 
  * negative_one -
@@ -635,7 +683,7 @@ int one_if_zero(int a) {
  *   Difficulty: 1
  */
 int negative_one(void) {
-    return 2;
+    return ~1 + 1;
 }
 /*
  *  boundary_add - 
@@ -663,8 +711,10 @@ int boundary_add(int a, int b) {
  *  Difficulty: 2
  */
 int sign_bit(int a) {
-    return 2;
-}
+    int zero = a;
+    int negative = a >> 31;
+    int positive = !zero + negative;
+}  // TODO: FINISH
 /* 
  * twos_complement_max - return maximum two's complement integer 
  *   Allowed operators: ! ~ & ^ | + << >>
@@ -672,7 +722,7 @@ int sign_bit(int a) {
  *   Difficulty: 1
  */
 int twos_complement_max(void) {
-    return 2;
+    return ~(1 << 31);
 }
 /* 
  * tmin - return minimum two's complement integer 
@@ -681,7 +731,7 @@ int twos_complement_max(void) {
  *   Difficulty: 1
  */
 int twos_complement_min(void) {
-    return 2;
+    return 1 << 31;
 }
 /* 
  * real_absolute_value -
