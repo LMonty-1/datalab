@@ -1,4 +1,6 @@
 #!bin/bash
+git fetch --all
+git pull origin
 if ./dlc bits.c; then
   echo "dlc tests pass!"
   echo "making..."

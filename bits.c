@@ -537,7 +537,17 @@ int absolute_value(int a) {
  *   Difficulty: 3
  */
 int add_no_overflow(int a, int b) {
-    return 2;
+    int rawSum = a + b;
+
+    int aSign = a >> 31;
+    int bSign = b >> 31;
+    int sumSign = rawSum >> 31;
+
+    int abDiff = aSign ^ bSign;
+    int asDiff = aSign ^ sumSign;
+    int bsDiff = bSign ^ sumSign;
+
+    return !!abDiff | (!asDiff & !bsDiff);
 }
 /*
  *  denominator_2_to_n -
@@ -683,7 +693,9 @@ int one_if_zero(int a) {
  *   Difficulty: 1
  */
 int negative_one(void) {
-    return ~1 + 1;
+  int ans = 0x0;
+  ans = ~ans;
+  return ans;
 }
 /*
  *  boundary_add - 
@@ -722,7 +734,8 @@ int sign_bit(int a) {
  *   Difficulty: 1
  */
 int twos_complement_max(void) {
-    return ~(1 << 31);
+  int ans = 0x80 << 24;
+  return ~ans;
 }
 /* 
  * tmin - return minimum two's complement integer 
