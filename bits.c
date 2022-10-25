@@ -659,7 +659,8 @@ int one_if_not_equal(int a, int b) {
  *   Difficulty: 1
  */
 int one_if_max_twos_complement(int a) {
-    return 2;
+    int max = ~(0x1 << 31);
+    return !!(a & max);
 }
 /*
  * one_if_min_twos_complement -
