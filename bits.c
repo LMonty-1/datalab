@@ -547,7 +547,7 @@ int add_no_overflow(int a, int b) {
     int asDiff = aSign ^ sumSign;
     int bsDiff = bSign ^ sumSign;
 
-    return abDiff | (!asDiff & !bsDiff);
+    return !!abDiff | (!asDiff & !bsDiff);
 }
 /*
  *  denominator_2_to_n -
