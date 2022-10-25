@@ -180,6 +180,7 @@ NOTES:
  *   Maximum operators: 12
  *   Difficulty: 2
  */
+
 int bit_set_odd(int a) {
     int m8  = 0xaa;
     int m16 = (m8  << 8)  | m8;
@@ -312,9 +313,9 @@ int bitwise_xor(int a, int b) {
 int byte_trade(int a, int i, int j) {
     int iBits = i << 3;
     int jBits = j << 3;
-    int ith = (a >> (iBits)) & 0xff;
-    int jth = (a >> (jBits)) & 0xff;
-    int swap = ith ^ jth;
+    int ith = a >> iBits;
+    int jth = a >> jBits;
+    int swap = (ith ^ jth) & 0xff;
 
     a = a ^ (swap << iBits);
     a = a ^ (swap << jBits);
@@ -372,7 +373,7 @@ int one_if_reversible(int a) {
     b3_2 = ((b3_2 & one2) >> 2) | ((b3_2 & ~one2) << 2);
     b3_2 = ((b3_2 & one1) >> 1) | ((b3_2 & ~one1) << 1);
     return ((a & one16) ^ (b3_2)) + 1;
-}
+}  // TODO: FIX
 /*
  * lsb_bit_mask -
  *    return a mask that marks the position of the
@@ -412,7 +413,12 @@ int sign_flip(int a) {
  *   Difficulty: 3
  */
 int byte_replace(int a, int i, int c) {
-    return 2;
+    int iBits = (i << 3);
+    int eraser;
+    eraser = ~(0xff << iBits);
+    a = (a & eraser) | (c << iBits);
+
+    return a;
 }
 /*
  * wheel_right -
@@ -425,7 +431,26 @@ int byte_replace(int a, int i, int c) {
  *   Difficulty: 3
  */
 int wheel_right(int a, int i) {
-    return 2;
+    //int s = ((notI + 1) | i) >> 31;
+    int thirtytwoMinusI = 0x41 + (~i);
+    //int iMinusOne = i + (~1) + 1;
+
+    int left = (a << thirtytwoMinusI);
+
+    // GRAB BIT THAT WOULD BE LOST
+    int lost = (a >> i) & 1;
+    // SHIFT BY 1
+    int right = a >> 1;
+    // ZERO OUT FIRST
+    right = right & (~(1 << 31));
+    // SHIFT BY N
+    right = right >> i;
+    // SHIFT BACK ONE
+    right = right << 1;
+    // OR WITH LOST BIT
+    right = right | lost;
+
+    return left | right;
 }
 /*
  * left_fill -
@@ -438,8 +463,12 @@ int wheel_right(int a, int i) {
  *  Difficulty: 1
  */
 int left_fill(int i) {
-    return 2;
-}
+    int largest = 1 << 31;
+    int mask = largest >> i;
+    mask = mask << 1;
+
+    return mask;
+}  // TODO: FIX
 /*
  * absolute_value -
  *   The absolute value of x
@@ -452,7 +481,10 @@ int left_fill(int i) {
  *   Difficulty: 4
  */
 int absolute_value(int a) {
-    return 2;
+    int isNegative = a >> 31;  // all 1 when a < 0, all 0 when a >= 0
+    int positive = ~a + 1;
+
+    return (positive & isNegative) | (a & ~isNegative);
 }
 /*
  *   add_no_overflow - Determine if can compute a+b without overflow
@@ -478,7 +510,7 @@ int add_no_overflow(int a, int b) {
  *   Difficulty: 2
  */
 int denominator_2_to_n(int a, int n) {
-    return 2;
+    return a >> n;
 }
 /*
  * quick_seventy_five_percent -
@@ -546,7 +578,7 @@ int one_if_negative(int a) {
  *   Difficulty: 4 
  */
 int one_if_non_zero(int a) {
-    return 2;
+    return ((a | (~a + 1)) >> 31) & 1;
 }
 /* 
  * one_if_not_equal -
@@ -559,7 +591,7 @@ int one_if_non_zero(int a) {
  *   Difficulty: 2
  */
 int one_if_not_equal(int a, int b) {
-    return 2;
+    return !!(a ^ b);
 }
 /*
  * one_if_max_twos_complement -
