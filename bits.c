@@ -537,7 +537,17 @@ int absolute_value(int a) {
  *   Difficulty: 3
  */
 int add_no_overflow(int a, int b) {
-    return 2;
+    int rawSum = a + b;
+
+    int aSign = a >> 31;
+    int bSign = b >> 31;
+    int sumSign = rawSum >> 31;
+
+    int abDiff = aSign ^ bSign;
+    int asDiff = aSign ^ sumSign;
+    int bsDiff = bSign ^ sumSign;
+
+    return abDiff | (!asDiff & !bsDiff);
 }
 /*
  *  denominator_2_to_n -
