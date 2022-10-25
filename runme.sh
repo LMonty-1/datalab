@@ -10,6 +10,5 @@ if ./dlc bits.c; then
 else
   echo "Failed dlc test:"
   ./dlc -e bits.c
-  exit 0
 fi
 exit 0
