@@ -525,11 +525,11 @@ int add_no_overflow(int a, int b) {
  *   Difficulty: 2
  */
 int denominator_2_to_n(int a, int n) {  // TODO: FIX THIS
-    int isNeg = (a >> 31) & 1;
-    int isNotEven = (a << 1);
-    isNotEven = !!(isNotEven << (32 + (~n)));
-    a = a >> n;
-    return a + (isNeg & isNotEven);
+    int isNeg = (a >> 31);
+    int quotient = a >> n;
+    int isNotEven = !!((quotient << n) ^ a);
+
+    return quotient + (isNeg & isNotEven);
 }
 /*
  * quick_seventy_five_percent -
@@ -563,8 +563,10 @@ int quick_seventy_five_percent(int a) {
  *   Difficulty: 3
  */
 int one_if_ascii(int a) {
-    int lessThan = ((a + ~0x39) >> 31) & 1;
-    int greaThan = !((a + ~0x2f) >> 31);
+    int aVal = a + ~0x39;
+    int aBig = aVal + 10;
+    int lessThan = ((aVal) >> 31);
+    int greaThan = !((aBig) >> 31);
 
     return lessThan & greaThan;
 }
@@ -627,7 +629,10 @@ int one_if_not_equal(int a, int b) {
  *   Difficulty: 1
  */
 int one_if_max_twos_complement(int a) {
-    return 2;
+    int special;
+    a = a + 1;
+    special = a ^ (~a + 1);
+    return (!special) & !!a;
 }
 /*
  * one_if_min_twos_complement -
@@ -638,7 +643,8 @@ int one_if_max_twos_complement(int a) {
  *   Difficulty: 1
  */
 int one_if_min_twos_complement(int a) {
-    return 2;
+    int special = a ^ (~a + 1);
+    return (!special) & !!a;
 }
 /*
  * one_if_zero - 
@@ -691,10 +697,9 @@ int boundary_add(int a, int b) {
  *  Difficulty: 2
  */
 int sign_bit(int a) {
-    int zero = a;
-    int negative = a >> 31;
-    int positive = !zero + negative;
-}  // TODO: FINISH
+    int signBit = ((a >> 31) << 1) + 1;
+    return signBit & (((!!a) << 31) >> 31);
+}
 /* 
  * twos_complement_max - return maximum two's complement integer 
  *   Allowed operators: ! ~ & ^ | + << >>
