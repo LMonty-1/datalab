@@ -487,9 +487,9 @@ int left_fill(int i) {
  */
 int absolute_value(int a) {
     int isNegative = a >> 31;  // all 1 when a < 0, all 0 when a >= 0
-    int positive = ~a + 1;
+    a = (a ^ isNegative) + (isNegative & 1);
 
-    return (positive & isNegative) | (a & ~isNegative);
+    return a;
 }
 /*
  *   add_no_overflow - Determine if can compute a+b without overflow
