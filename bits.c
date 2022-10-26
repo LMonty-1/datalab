@@ -670,7 +670,8 @@ int one_if_max_twos_complement(int a) {
  *   Difficulty: 1
  */
 int one_if_min_twos_complement(int a) {
-    return !(~((a-1) + !(a)^(a)));
+  int b = ~a;
+    return !(~(b + !(b+1)^(b+1)));
 }
 /*
  * one_if_zero - 
