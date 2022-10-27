@@ -754,7 +754,7 @@ int real_to_int(unsigned r) {
 
     int i, result = 1;
 
-    return myEx;
+    // return myEx;
 
     if(myEx < 0 ) { /* Exactly 0  or Denormalized */
         return 0; 
