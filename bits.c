@@ -629,10 +629,7 @@ int one_if_not_equal(int a, int b) {
  *   Difficulty: 1
  */
 int one_if_max_twos_complement(int a) {
-    int special;
-    a = a + 1;
-    special = a ^ (~a + 1);
-    return (!special) & !!a;
+    return !(~(a + !(a+1)^(a+1)));
 }
 /*
  * one_if_min_twos_complement -
@@ -643,8 +640,8 @@ int one_if_max_twos_complement(int a) {
  *   Difficulty: 1
  */
 int one_if_min_twos_complement(int a) {
-    int special = a ^ (~a + 1);
-    return (!special) & !!a;
+  int b = ~a;
+    return !(~(b + !(b+1)^(b+1)));
 }
 /*
  * one_if_zero - 
