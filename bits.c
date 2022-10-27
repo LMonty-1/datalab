@@ -744,7 +744,26 @@ unsigned real_absolute_value(unsigned r) {
  *   Difficulty: 4
  */
 int real_to_int(unsigned r) {
-    return 2;
+    unsigned getSign = 0x80000000;
+    unsigned getEx = 0x1000000;
+    unsigned getFrac = 0x200;
+
+    unsigned mySign = r / getSign;
+    unsigned myEx = ((r * 2) / getEx) - 127;
+    unsigned myFrac = (r * getFrac) / getFrac;
+
+    if(myEx == 0 ) { /* Exactly 0  or Denormalized */
+        return 0; 
+    }
+    if(myEx == 255) { /* Special, Infinity or NaN */
+        return 0x80000000u;
+    }
+
+    int i, result = 1;
+    for (i = 0; i < myEx; i++)
+        result *= myFrac;
+
+    return result;
 }
 /* 
  *  int_to_float -
