@@ -751,6 +751,8 @@ int real_to_int(unsigned r) {
     unsigned mySign = r / getSign;
     unsigned myEx = ((r * 2) / getEx) - 127;
     unsigned myFrac = (r * getFrac) / getFrac;
+    
+    int i, result = 1;
 
     if(myEx == 0 ) { /* Exactly 0  or Denormalized */
         return 0; 
@@ -759,7 +761,6 @@ int real_to_int(unsigned r) {
         return 0x80000000u;
     }
 
-    int i, result = 1;
     for (i = 0; i < myEx; i++)
         result *= myFrac;
 
