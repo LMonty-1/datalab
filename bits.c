@@ -752,9 +752,9 @@ int real_to_int(unsigned r) {
     unsigned myEx = ((r * 2) / getEx) - 127;
     unsigned myFrac = (r * getFrac) / getFrac;
 
-    return myEx;
-    
     int i, result = 1;
+
+    return myEx;
 
     if(myEx == 0 ) { /* Exactly 0  or Denormalized */
         return 0; 
