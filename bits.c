@@ -776,7 +776,7 @@ int real_to_int(unsigned r) {
         }
     }
 
-    return myFrac;
+    return 1 + myFrac;
 }
 /* 
  *  int_to_float -
