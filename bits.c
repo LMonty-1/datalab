@@ -759,9 +759,9 @@ int real_to_int(unsigned r) {
     if(myEx < 0 ) { /* Exactly 0  or Denormalized */
         return 0; 
     }
-    if(myEx >= 255) { /* Special, Infinity or NaN */
+    /* if(myEx >= 255) { // Special, Infinity or NaN
         return 0x80000000u;
-    }
+    } */
 
     for (i = 0; i < myEx; i++) {
         result *= myFrac;
