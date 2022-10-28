@@ -754,18 +754,25 @@ int real_to_int(unsigned r) {
     unsigned myFrac = (r * getFrac) / getFrac;
     
     int bigE = myExponent - bias;
-    int bigM = 1;
+    int bigM = 0;
 
     int i;
 
-    if (bigE <= 0) { // if we are in denormalized form
+    if (myExponent == 0) { // if we are in denormalized form
         return 0;
     }
     if (myExponent == 255) { // if we are in a special form
         return 0x80000000u;
     }
-    for (i = 0; i < bigE; i ++) {
-        bigM *= 2;
+    if (bigE > 127) {
+        for (i = 0; i < bigE; i ++) {
+            bigM *= 2;
+        }
+    }
+    if (bigE < 127) {
+        for (i = 0; i < -1 * bigE; i++) {
+            bigM = bigM / 2;
+        }
     }
     if (mySign) {
         return -1 * (1 + bigM);
