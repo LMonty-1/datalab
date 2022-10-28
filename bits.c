@@ -749,7 +749,7 @@ int real_to_int(unsigned r) {
     unsigned getFrac = 0x200;
 
     unsigned mySign = r / getSign;
-    unsigned myEx = ((r * 2) / getEx) - 127;
+    int myEx = ((r * 2) / getEx) - 127;
     unsigned myFrac = (r * getFrac) / getFrac;
 
     int i, result = 1;
