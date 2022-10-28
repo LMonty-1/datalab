@@ -768,7 +768,7 @@ int real_to_int(unsigned r) {
     }
 
     for (i = 0; i < myEx - exBias - 1; i++) {
-        result *= myFrac;
+        result /= 2;
     }
 
     if (result == 0) {
