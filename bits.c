@@ -756,12 +756,28 @@ int real_to_int(unsigned r) {
  *   Maximum operators: 30
  *   Difficulty: 4
  */
-unsigned int_to_float(int i) {
+unsigned int_to_float(int i) {  // 0x00800000
     unsigned sign;
-    unsigned exponent = 127;
+    unsigned exponent = 127;  // 00000000 00000000 00000000 011111111
+
+    // 0 10000000 1000000 00000000 00000000
+
+    /* 00000000 01111111 11111111 11111111 = while loop
+     * 00000000 10000000 00000000 00000000
+     * 00000000 01000000 00000000 00000000
+     *
+     * 0x40400000
+     * 0 10000000 1000000 00000000 00000000
+     *
+     * 0x4b000000
+     * 0 10010110 0000000 00000000 00000000
+     */
 
     if (i == 0) {
         return 0;
+    }
+    if (i == 0x80000000) {
+        return 0xcf000000;
     }
 
     sign = (i < 0) * 0x80000000;
