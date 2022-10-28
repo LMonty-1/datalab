@@ -771,46 +771,6 @@ int real_to_int(unsigned r) {
     
     // evil floating point bit level hacking
     return ans;
-
-
-    /*
-    unsigned getSign = 0x80000000;
-    unsigned getEx = 0x1000000;
-    unsigned getFrac = 0x200;
-
-    unsigned mySign = r / getSign;
-    int myExponent = ((r * 2) / getEx); // don't forget to account for bias!!!
-    int bias = 127;
-    unsigned myFrac = (r * getFrac) / getFrac;
-    
-    int bigE = myExponent - bias;
-    int bigM = 0;
-
-    int i;
-
-    if (myExponent == 0) { // if we are in denormalized form
-        return 0;
-    }
-    if (myExponent == 255) { // if we are in a special form
-        return 0x80000000u;
-    }
-    if (bigE > 127) {
-        bigM += 1;
-        for (i = 0; i < bigE; i ++) {
-            bigM *= 2;
-        }
-    }
-    if (bigE < 127) {
-        bigM += 1;
-        for (i = 0; i < -1 * bigE; i++) {
-            bigM = bigM / 2;
-        }
-    }
-    if (mySign) {
-        return -1 * (bigM);
-    }
-    return bigM;
-    */
 }
 /* 
  *  int_to_float -
