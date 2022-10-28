@@ -763,7 +763,7 @@ int real_to_int(unsigned r) {
         ans = myFrac >> (myEx - 23);
     }
     if (myEx > 23) {
-        ans = myFrac << (myEx - 23);
+        ans = myFrac << (23 - myEx);
     }
     if (mySign) {
         ans = -1 * ans;
