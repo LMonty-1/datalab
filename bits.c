@@ -547,8 +547,8 @@ int quick_seventy_five_percent(int a) {
     int a2 = a + a;
     int a3 = a2 + a;
     int isNeg = (a3 >> 31) & 1;
-    int isEven = !!(a3 & 3);
-    return (a3 >> 2) + (isNeg & isEven);
+    int isntEven = !!(a3 & 3);
+    return (a3 >> 2) + (isNeg & isntEven);
 }
 /*
  * one_if_ascii -
@@ -681,7 +681,7 @@ int negative_one(void) {
  *   Difficulty: 4
  */
 int boundary_add(int a, int b) {
-    return 2;
+    ;
 }
 /* 
  *  sign_bit - 
@@ -757,7 +757,25 @@ int real_to_int(unsigned r) {
  *   Difficulty: 4
  */
 unsigned int_to_float(int i) {
-    return 2;
+    unsigned sign;
+    unsigned exponent = 127;
+
+    if (i == 0) {
+        return 0;
+    }
+
+    sign = (i < 0) * 0x80000000;
+    if (i < 0) {
+        i = i * -1;
+    }
+
+    while (i > 0x7fffff) {
+        i = i/2;
+        exponent++;
+    }
+
+    exponent = exponent * 8388608;
+    return sign + exponent + i;
 }
 /* 
  * real_negation -
@@ -772,5 +790,13 @@ unsigned int_to_float(int i) {
  *   Difficulty: 2
  */
 unsigned real_negation(unsigned r) {
-    return 2;
+    unsigned mask = 0x80000000;
+    if (r - 0x7f800001 < 0x7fffff) {
+        return r;
+    }
+    if (r > 0xff800000) {
+        return r;
+    }
+
+    return r + mask;
 }
