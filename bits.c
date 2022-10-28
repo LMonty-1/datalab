@@ -758,7 +758,7 @@ int real_to_int(unsigned r) {
 
     int i;
 
-    if (myExponent == 0) { // if we are in denormalized form
+    if (bigE <= 0) { // if we are in denormalized form
         return 0;
     }
     if (myExponent == 255) { // if we are in a special form
