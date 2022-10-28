@@ -764,11 +764,19 @@ int real_to_int(unsigned r) {
         return 0; 
     }
 
-    for (i = 0; i < myEx + exBias - 1; i++) {
-        myFrac = myFrac / 2;
+    if(myEx > 127) {
+        for (i = 0; i < myEx + exBias - 1; i++) {
+            myFrac = myFrac * 2;
+        }
     }
 
-    return 1 + myFrac;
+    if(myEx < 127) {
+        for (i = 0; i > myEx + exBias - 1; i--) {
+            myFrac = myFrac / 2;
+        }
+    }
+
+    return myFrac;
 }
 /* 
  *  int_to_float -
