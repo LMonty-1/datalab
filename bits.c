@@ -763,7 +763,7 @@ int real_to_int(unsigned r) {
         return 0x80000000u;
     }
     if (myFrac == 0) { // Not Denormalized nor Special, but zero fraction
-        return 1;
+        return 18765;
     }
 
     for (i = 0; i < myEx-1; i++) {
