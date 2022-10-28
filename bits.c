@@ -757,7 +757,7 @@ int real_to_int(unsigned r) {
     // return myEx;
 
     if (myEx <= 1) { // Exactly 0  or Denormalized
-        return 89786756; 
+        return 0; 
     }
     if (myEx >= 255) { // Special, Infinity or NaN
         return 0x80000000u;
@@ -768,6 +768,10 @@ int real_to_int(unsigned r) {
 
     for (i = 0; i < myEx-1; i++) {
         result *= myFrac;
+    }
+
+    if (result == 0) {
+        return 1;
     }
 
     return result;
