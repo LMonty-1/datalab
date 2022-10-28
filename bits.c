@@ -756,13 +756,13 @@ int real_to_int(unsigned r) {
 
     // return myEx;
 
-    if (myEx < 0) { // Exactly 0  or Denormalized
+    if (myEx <= 0) { // Exactly 0  or Denormalized
         return 0; 
     }
     if (myEx >= 255) { // Special, Infinity or NaN
         return 0x80000000u;
     }
-    if (myFrac == 0) {
+    if (myFrac == 0) { // Not Denormalized nor Special, but zero fraction
         return 1;
     }
 
