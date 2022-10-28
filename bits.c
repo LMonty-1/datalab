@@ -756,11 +756,11 @@ int real_to_int(unsigned r) {
 
     // return myEx;
 
-    if(myEx < 0 ) { // Exactly 0  or Denormalized
+    if(myEx < 0 || myFrac == 0) { // Exactly 0  or Denormalized
         return 0; 
     }
      if(myEx >= 255 && myFrac != 0) { // Special, Infinity or NaN
-        return 123456; //0x80000000u;
+        return 0x80000000u;
     }
 
     for (i = 0; i < myEx; i++) {
