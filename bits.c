@@ -749,14 +749,15 @@ int real_to_int(unsigned r) {
     unsigned getFrac = 0x200;
 
     unsigned mySign = r / getSign;
-    int myEx = ((r * 2) / getEx) - 127;
+    int myEx = ((r * 2) / getEx); // don't forget to account for bias!!!
+    int exBias = -127;
     unsigned myFrac = (r * getFrac) / getFrac;
 
     int i, result = 1;
 
     // return myEx;
 
-    if (myEx <= 1) { // Exactly 0  or Denormalized
+    if (myEx <= 0) { // Exactly 0  or Denormalized
         return 0; 
     }
     if (myEx >= 255) { // Special, Infinity or NaN
@@ -766,7 +767,7 @@ int real_to_int(unsigned r) {
         return 1;
     }
 
-    for (i = 0; i < myEx-1; i++) {
+    for (i = 0; i < myEx - exBias - 1; i++) {
         result *= myFrac;
     }
 
