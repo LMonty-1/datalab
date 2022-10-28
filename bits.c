@@ -765,19 +765,21 @@ int real_to_int(unsigned r) {
         return 0x80000000u;
     }
     if (bigE > 127) {
+        bigM += 1;
         for (i = 0; i < bigE; i ++) {
             bigM *= 2;
         }
     }
     if (bigE < 127) {
+        bigM += 1;
         for (i = 0; i < -1 * bigE; i++) {
             bigM = bigM / 2;
         }
     }
     if (mySign) {
-        return -1 * (1 + bigM);
+        return -1 * (bigM);
     }
-    return 1 + bigM;
+    return bigM;
 }
 /* 
  *  int_to_float -
