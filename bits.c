@@ -745,7 +745,7 @@ unsigned real_absolute_value(unsigned r) {
  */
 int real_to_int(unsigned r) {
     int mySign = r >> 31;
-    int myEx = r >> 23 & 0xff;
+    int myEx = (r >> 23) & 0xff;
     int myFrac = r & 0x007fffff;
 
     int ans = 0;
@@ -753,17 +753,17 @@ int real_to_int(unsigned r) {
     myFrac = myFrac | 0x00800000;
     myEx = myEx - 127;
 
-    if (myEx <= -1) { // would move all value below 1
+    if (myEx < 0) { 
         return 0;
     }
     if (myEx > 30) { // overflow
         return 0x80000000u;
     }
     if (myEx < 23) {
-        ans = myFrac >> (myEx - 23);
+        ans = myFrac >> (23 - myEx);
     }
     if (myEx > 23) {
-        ans = myFrac << (23 - myEx);
+        ans = myFrac << (myEx - 23);
     }
     if (mySign) {
         ans = -1 * ans;
