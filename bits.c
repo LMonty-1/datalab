@@ -744,6 +744,36 @@ unsigned real_absolute_value(unsigned r) {
  *   Difficulty: 4
  */
 int real_to_int(unsigned r) {
+    int mySign = r >> 31;
+    int myEx = r >> 23 & 0xff;
+    int myFrac = r & 0x007fffff;
+
+    int ans = 0;
+
+    myFrac = myFrac | 0x00800000;
+    myEx = myEx - 127;
+
+    if (myEx <= -1) { // would move all value below 1
+        return 0;
+    }
+    if (myEx > 30) { // overflow
+        return 0x80000000u;
+    }
+    if (myEx < 23) {
+        ans = myFrac >> (myEx - 23);
+    }
+    if (myEx > 23) {
+        ans = myFrac << (myEx - 23);
+    }
+    if (mySign) {
+        ans = -1 * ans;
+    }    
+    
+    // evil floating point bit level hacking
+    return ans;
+
+
+    /*
     unsigned getSign = 0x80000000;
     unsigned getEx = 0x1000000;
     unsigned getFrac = 0x200;
@@ -780,6 +810,7 @@ int real_to_int(unsigned r) {
         return -1 * (bigM);
     }
     return bigM;
+    */
 }
 /* 
  *  int_to_float -
