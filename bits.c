@@ -762,6 +762,8 @@ int real_to_int(unsigned r) {
     if (myEx >= 255) { // Special, Infinity or NaN
         return 0x80000000u;
     }
+    printf("r:\t%x\n", r);
+    printf("myFrac:\t%x\n", myFrac);
     if (myFrac == 0) { // Not Denormalized nor Special, but zero fraction
         return 1;
     }
