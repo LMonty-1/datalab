@@ -767,7 +767,7 @@ int real_to_int(unsigned r) {
         return 0;
     }
 
-    for (i = 0; i < myEx - exBias - 1; i++) {
+    for (i = 0; i < myEx + exBias - 1; i++) {
         myFrac = myFrac / 2;
     }
 
