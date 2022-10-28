@@ -763,7 +763,7 @@ int real_to_int(unsigned r) {
         return 0x80000000u;
     }
 
-    for (i = 0; i < myEx; i++) {
+    for (i = 0; i < myEx-1; i++) {
         result *= myFrac;
     }
 
