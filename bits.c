@@ -753,7 +753,7 @@ int real_to_int(unsigned r) {
     int exBias = -127;
     unsigned myFrac = (r * getFrac) / getFrac;
 
-    int i, result = 1;
+    int i;
 
     // return myEx;
 
@@ -768,14 +768,10 @@ int real_to_int(unsigned r) {
     }
 
     for (i = 0; i < myEx - exBias - 1; i++) {
-        result /= 2;
+        myFrac /= 2;
     }
 
-    if (result == 0) {
-        return 1;
-    }
-
-    return result;
+    return myFrac;
 }
 /* 
  *  int_to_float -
