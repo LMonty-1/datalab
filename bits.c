@@ -575,10 +575,10 @@ int quick_seventy_five_percent(int a) {
  *   Difficulty: 3
  */
 int one_if_ascii(int a) {
-    int aVal = a + ~0x39;
-    int aBig = aVal + 10;
-    int lessThan = ((aVal) >> 31);
-    int greaThan = !((aBig) >> 31);
+    int aVal = a + ~0x39;  // a minus max ascii value
+    int aBig = aVal + 10;  // a minus minimum ascii value
+    int lessThan = ((aVal) >> 31);  // checks to see if aVal is negative (a less than max ascii value)
+    int greaThan = !((aBig) >> 31);  // checks to see if aBig is positive (a greater than min ascii value)
 
     return lessThan & greaThan;
 }
@@ -593,7 +593,7 @@ int one_if_ascii(int a) {
  *   Difficulty: 2
  */
 int one_if_equal(int a, int b) {
-    return !(a ^ b);
+    return !(a ^ b);  // a ^ b will not equal zero if they are different
 }
 /*
  * one_if_negative -
@@ -605,7 +605,7 @@ int one_if_equal(int a, int b) {
  *   Difficulty: 2
  */
 int one_if_negative(int a) {
-    return (a >> 31) & 1;
+    return (a >> 31) & 1;  // most sig bit indicates sign of a
 }
 /* 
  * one_if_non_zero -
@@ -618,7 +618,8 @@ int one_if_negative(int a) {
  *   Difficulty: 4 
  */
 int one_if_non_zero(int a) {
-    return ((a | (~a + 1)) >> 31) & 1;
+    return ((a | (~a + 1)) >> 31) & 1;  // As I observed above in logical_not, (a | (~a + 1) will always have the most
+    // sig bit as 1 unless it is 0, allowing us to drag this bit over to observe whether or not a is zero
 }
 /* 
  * one_if_not_equal -
@@ -631,7 +632,7 @@ int one_if_non_zero(int a) {
  *   Difficulty: 2
  */
 int one_if_not_equal(int a, int b) {
-    return !!(a ^ b);
+    return !!(a ^ b);  // Exactly like the test for equality, but you just have to not it
 }
 /*
  * one_if_max_twos_complement -
@@ -641,7 +642,7 @@ int one_if_not_equal(int a, int b) {
  *   Difficulty: 1
  */
 int one_if_max_twos_complement(int a) {
-    return !(~(a + !(a+1)^(a+1)));
+    return !(~(a + !(a+1)^(a+1)));  // Monty did this one, not me, so I have no clue how it works
 }
 /*
  * one_if_min_twos_complement -
@@ -652,8 +653,8 @@ int one_if_max_twos_complement(int a) {
  *   Difficulty: 1
  */
 int one_if_min_twos_complement(int a) {
-  int b = ~a;
-    return !(~(b + !(b+1)^(b+1)));
+    int b = ~a;
+    return !(~(b + !(b+1)^(b+1)));  // Monty also did this one
 }
 /*
  * one_if_zero - 
@@ -666,7 +667,7 @@ int one_if_min_twos_complement(int a) {
  *   Difficulty: 1
  */
 int one_if_zero(int a) {
-    return !a;
+    return !a;  // Pretty easy, !0 is 1
 }
 /* 
  * negative_one -
@@ -676,8 +677,8 @@ int one_if_zero(int a) {
  *   Difficulty: 1
  */
 int negative_one(void) {
-  int ans = 0x0;
-  ans = ~ans;
+  int ans = 0x0;  // all 0
+  ans = ~ans;  // all 1 (= -1)
   return ans;
 }
 /*
@@ -693,6 +694,7 @@ int negative_one(void) {
  *   Difficulty: 4
  */
 int boundary_add(int a, int b) {
+    // collaborated with another group to get this because it was awful
     // create the sum and get the sign of the sum
     int sum = a + b;
     int sums = sum >> 31;
@@ -722,9 +724,9 @@ int boundary_add(int a, int b) {
  *  Maximum operators: 10
  *  Difficulty: 2
  */
-int sign_bit(int a) {
-    int signBit = ((a >> 31) << 1) + 1;
-    return signBit & (((!!a) << 31) >> 31);
+int sign_bit(int a) {  // Sign
+    int signBit = ((a >> 31) << 1) + 1;  // Multiplies sign bit by 2 and adds 1 - -1 becomes -1 and 0 becomes 1
+    return signBit & (((!!a) << 31) >> 31);  // ands with all 1s or 0 if a if not zero or 0
 }
 /* 
  * twos_complement_max - return maximum two's complement integer 
@@ -733,7 +735,7 @@ int sign_bit(int a) {
  *   Difficulty: 1
  */
 int twos_complement_max(void) {
-  int ans = 0x80 << 24;
+  int ans = 1 << 31;  // ~10000...000 = 01111...1111
   return ~ans;
 }
 /* 
@@ -743,7 +745,7 @@ int twos_complement_max(void) {
  *   Difficulty: 1
  */
 int twos_complement_min(void) {
-    return 1 << 31;
+    return 1 << 31;  // Pretty obvyous
 }
 /* 
  * real_absolute_value -
@@ -756,9 +758,9 @@ int twos_complement_min(void) {
  *   Maximum operators: 10
  *   Difficulty: 2
  */
-unsigned real_absolute_value(unsigned r) {
+unsigned real_absolute_value(unsigned r) {  // TODO
     int exp = (r<<1)>>24;
-    if(!(exp^0xFF) && r<<9){
+    if(!(exp^0xff) && r<<9){
         return r;
     }
     r = r<<1;
@@ -778,6 +780,7 @@ unsigned real_absolute_value(unsigned r) {
  *   Difficulty: 4
  */
 int real_to_int(unsigned r) {
+    // Monty did this one; I don't understand it
     int mySign = r >> 31;
     int myEx = (r >> 23) & 0xff;
     int myFrac = r & 0x007fffff;
@@ -823,6 +826,8 @@ unsigned int_to_float(int i) {
     int place = 0;
     int halfway;
     int roundup = 0;
+    int missingIsHalf;
+    int lastBitI;
 
     // SPECIAL CASES for i is 0 or minimum
     if (i == 0) {
@@ -838,17 +843,20 @@ unsigned int_to_float(int i) {
         i = -i;
     }
 
-    if (i > 0xffffff) {
+    // Making i 24 bits
+    if (i > 0xffffff) {  // If i is too large and must be compressed by increasing exponent
         while (i > 0xffffff) {
-            missing += ((i & 1) << place++);
+            missing += ((i & 1) << place++);  // Add the missing bits to missing so we can round later
             i = i >> 1;
             exponent++;
         }
-        if (missing > 0) {
+        lastBitI = i & 1;
+        if (missing > 0) {  // If there were missing bits...
             halfway = (1 << (place - 1));
+            missingIsHalf = missing == halfway;
             if (missing < halfway) {
-            } else if (missing == halfway) {
-                if (i & 1) {
+            } else if (missingIsHalf) { // used to be if (missing < halfway) {}
+                if (lastBitI) {
                     roundup = 1;
                 }
             } else {
@@ -856,7 +864,7 @@ unsigned int_to_float(int i) {
             }
             if (roundup) {
                 if (i != 0xffffff) {
-                    if (missing == halfway) {
+                    if (missingIsHalf) {
                         if (i & 1) {
                             i++;
                         }
@@ -864,8 +872,8 @@ unsigned int_to_float(int i) {
                         i++;
                     }
                 } else {
-                    if (missing == halfway) {
-                        if (i & 1) {
+                    if (missingIsHalf) {
+                        if (i & 1) {  // Avoid overflow by adding to exponent manually
                             i = 1 << 23;
                             exponent++;
                         }
@@ -876,8 +884,8 @@ unsigned int_to_float(int i) {
                 }
             }
         }
-    } else if (i < 0x800000) {
-        while (i < 0x800000) {
+    } else if (i < 0x800000) {  // If i is too small and must be expanded by subtracting from exponent
+        while (i < 0x800000) {  // TODO: Replace if?
             i = i << 1;
             exponent--;
         }
