@@ -827,7 +827,6 @@ unsigned int_to_float(int i) {
     int halfway;
     int roundup = 0;
     int missingIsHalf;
-    int lastBitI;
 
     // SPECIAL CASES for i is 0 or minimum
     if (i == 0) {
@@ -850,13 +849,12 @@ unsigned int_to_float(int i) {
             i = i >> 1;
             exponent++;
         }
-        lastBitI = i & 1;
         if (missing > 0) {  // If there were missing bits...
             halfway = (1 << (place - 1));
             missingIsHalf = missing == halfway;
             if (missing < halfway) {
             } else if (missingIsHalf) { // used to be if (missing < halfway) {}
-                if (lastBitI) {
+                if (i & 1) {
                     roundup = 1;
                 }
             } else {
@@ -864,23 +862,11 @@ unsigned int_to_float(int i) {
             }
             if (roundup) {
                 if (i != 0xffffff) {
-                    if (missingIsHalf) {
-                        if (i & 1) {
-                            i++;
-                        }
-                    } else {
-                        i++;
-                    }
+                    i++;
                 } else {
-                    if (missingIsHalf) {
-                        if (i & 1) {  // Avoid overflow by adding to exponent manually
-                            i = 1 << 23;
-                            exponent++;
-                        }
-                    } else {
-                        i = 1 << 23;
-                        exponent++;
-                    }
+                    // Avoid overflow by adding to exponent manually
+                    i = 1 << 23;
+                    exponent++;
                 }
             }
         }
