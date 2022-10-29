@@ -850,18 +850,18 @@ unsigned int_to_float(int i) {
             exponent++;
         }
         if (missing > 0) {  // If there were missing bits...
-            halfway = (1 << (place - 1));
+            halfway = (1 << (place - 1));  // halfway point for rounding to even algorithm
             missingIsHalf = missing == halfway;
-            if (missing < halfway) {
-            } else if (missingIsHalf) { // used to be if (missing < halfway) {}
+            if (missing < halfway) {  // If truncated portion is less than half, round down
+            } else if (missingIsHalf) { // If trunc is half exactly, round to nearest half
                 if (i & 1) {
                     roundup = 1;
                 }
-            } else {
+            } else {  // If trunc > half, round up
                 roundup = 1;
             }
             if (roundup) {
-                if (i != 0xffffff) {
+                if (i != 0xffffff) {  // If it won't overflow, just increment i
                     i++;
                 } else {
                     // Avoid overflow by adding to exponent manually
@@ -877,10 +877,10 @@ unsigned int_to_float(int i) {
         }
     }
 
-    i = i - 0x800000;
+    i = i - 0x800000;  // Remove leading one
 
     exponent = exponent << 23;
-    return sign + exponent + i;
+    return sign + exponent + i;  // combine back together baby
 }
 /* 
  * real_negation -
@@ -896,12 +896,12 @@ unsigned int_to_float(int i) {
  */
 unsigned real_negation(unsigned r) {
     unsigned mask = 0x80000000;
-    if (r - 0x7f800001 < 0x7fffff) {
+    if (r - 0x7f800001 < 0x7fffff) {  // One of the ranges of NaNs
         return r;
     }
-    if (r > 0xff800000) {
+    if (r > 0xff800000) {  // Other range of NaN
         return r;
     }
 
-    return r + mask;
+    return r + mask;  // Just flip the first bit
 }
