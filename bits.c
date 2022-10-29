@@ -182,10 +182,10 @@ NOTES:
  */
 
 int bit_set_odd(int a) {
-    int m8  = 0xaa;
-    int m16 = (m8  << 8)  | m8;
+    int m8  = 0xaa;  // Mask of 10101010 (all odd bits)
+    int m16 = (m8  << 8)  | m8;  // moves mask all the way across to cover 32 bits
     int m32 = (m16 << 16) | m16;
-    return !!(a & m32);
+    return !!(a & m32);  // double logical not to return a 1 or 0
 }
 /*
  * logical_not -
@@ -199,6 +199,10 @@ int bit_set_odd(int a) {
  */
 int logical_not(int a) {
     a = ((a | ((~a) + 1)) >> 31) + 1;
+    // I noticed that a and ~a always have opposite most significant bits unless a=0
+    // Therefore (a | (~a)) will always have a most significant bit of one unless a = 0
+    // Dragging that bit to the end makes 0 -> 0xffffffff and anything else -> 0x00000000
+    // Adding one makes 0xffffffff overflow and so 0 -> 1. anything else + 1 = 0
 
     return a;
 }
@@ -211,7 +215,7 @@ int logical_not(int a) {
  *   Difficulty: 1
  */
 int bitwise_and(int a, int b) {
-    return (~(~a | ~b));
+    return (~(~a | ~b));  // DeMorgan's Law
 }
 /*
  * bit_sum -
@@ -226,34 +230,34 @@ int bitwise_and(int a, int b) {
 int bit_sum(int a) {
     int mask2_8  = 0x55;
     int mask2_16 = mask2_8  | (mask2_8 << 8);
-    int mask2_32 = mask2_16 | (mask2_16 << 16);
+    int mask2_32 = mask2_16 | (mask2_16 << 16);  // 01010101...01010101
     int mask4_8  = 0x33;
     int mask4_16 = mask4_8 | (mask4_8 << 8);
-    int mask4_32 = mask4_16 | (mask4_16 << 16);
+    int mask4_32 = mask4_16 | (mask4_16 << 16);  // 00110011...00110011
     int mask8_8  = 0x0f;
     int mask8_16 = mask8_8  | (mask8_8 << 8);
-    int mask8_32 = mask8_16 | (mask8_16 << 16);
-    int mask16_32 = 0xff | (0xff << 16);
-    int mask32_32 = 0xff | (0xff << 8);
+    int mask8_32 = mask8_16 | (mask8_16 << 16);  // 00001111...00001111
+    int mask16_32 = 0xff | (0xff << 16);  // 00000000 11111111 00000000 11111111
+    int mask32_32 = 0xff | (0xff << 8);  // 00000000 00000000 11111111 11111111
 
-    int sum2R = a & mask2_32;
-    int sum2L = (a >> 1) & mask2_32;
-    int sum2  = sum2R + sum2L;
+    int sum2R = a & mask2_32;  // all even bits
+    int sum2L = (a >> 1) & mask2_32;  // all odd bits
+    int sum2  = sum2R + sum2L;  // makes every bit pair (0-1, 2-3, ... , 30-31) the sum of the two bits in the pair.
 
-    int sum4R = sum2 & mask4_32;
+    int sum4R = sum2 & mask4_32;  // Similarly "recurses", but with 4 bits instead of a pair
     int sum4L = (sum2 >> 2) & mask4_32;
     int sum4  = sum4R + sum4L;
 
-    int sum8R = sum4 & mask8_32;
+    int sum8R = sum4 & mask8_32;  // Then with 8...
     int sum8L = (sum4 >> 4) & mask8_32;
     int sum8  = sum8R + sum8L;
 
-    int sum16R = sum8 & mask16_32;
+    int sum16R = sum8 & mask16_32;  // 16
     int sum16L = (sum8 >> 8) & mask16_32;
     int sum16  = sum16R + sum16L;
 
-    int sum32R = sum16 & mask32_32;
-    int sum32L = (sum16 >> 16) & mask32_32;
+    int sum32R = sum16 & mask32_32;  // Until the whole number is the sum of the two sums of the four sums...
+    int sum32L = (sum16 >> 16) & mask32_32;  // Of the original 32 bits!
     int sum32  = sum32R + sum32L;
 
     return sum32;
@@ -268,7 +272,7 @@ int bit_sum(int a) {
  *   Difficulty: 1
  */
 int bitwise_or(int a, int b) {
-    return (~(~a & ~b));
+    return (~(~a & ~b));  // DeMorgan's Law
 }
 /*
  * bit_sum_odd -
@@ -281,8 +285,8 @@ int bitwise_or(int a, int b) {
  *   Difficulty: 4
  */
 int bit_sum_odd(int a) {
-    int i16 = (a  ^ (a >> 16));
-    int i8  = (i16 ^ (i16 >> 8));
+    int i16 = (a  ^ (a >> 16));  // If [0-x] contains an odd number of bits, so will [0 - 1/2x] ^ [1/2x - x].
+    int i8  = (i16 ^ (i16 >> 8));  // Apply this principle all the way down.
     int i4  = (i8  ^ (i8 >> 4));
     int i2  = (i4  ^ (i4 >> 2));
     int i1  = (i2 ^ (i2 >> 1));
@@ -298,6 +302,9 @@ int bit_sum_odd(int a) {
  *   Difficulty: 1
  */
 int bitwise_xor(int a, int b) {
+    // ~(~a & ~b) is a | b by DeMorgan's
+    // ~(a & b) reveals where a != b
+    // at least one bit from a and b must be 1, but the bits must not be the same
     return ~(~a & ~b) & ~(a & b);
 }
 /*
@@ -311,13 +318,16 @@ int bitwise_xor(int a, int b) {
  *  Difficulty: 2
  */
 int byte_trade(int a, int i, int j) {
-    int iBits = i << 3;
+    int iBits = i << 3;  // Changes i and j from byte to bits by multiplying by 8
     int jBits = j << 3;
-    int ith = a >> iBits;
+    int ith = a >> iBits;  // Obtains the i and j bytes...
     int jth = a >> jBits;
-    int swap = (ith ^ jth) & 0xff;
+    int swap = (ith ^ jth) & 0xff;  // ...and xors them to find the byte "swap"
+    // Note that if c = a ^ b...
+    // a ^ c = b
+    // b ^ c = a
 
-    a = a ^ (swap << iBits);
+    a = a ^ (swap << iBits);  // Apply that principle here!
     a = a ^ (swap << jBits);
 
     return a;
@@ -331,9 +341,9 @@ int byte_trade(int a, int i, int j) {
  *   Difficulty: 3
  */
 int compact_if_then(int a, int b, int c) {
-    int opp = !a;
-    opp = ((opp << 31) >> 31);
-    return (opp & c) | (~opp & b);
+    int opp = !a;  // a is 0 if true and 1 if false
+    opp = ((opp << 31) >> 31);  // make opp a mask where every bit becomes what the least significant bit was
+    return (opp & c) | (~opp & b);  // if a is true, opp = 0 and c is removed, if a is false, ~opp = 0 and b is removed
 }
 /*
  * distill_byte -
@@ -346,8 +356,8 @@ int compact_if_then(int a, int b, int c) {
  *   Difficulty: 2
  */
 int distill_byte(int a, int i) {
-    int dist = i << 3;
-    a = (a >> dist) & 0xff;
+    int dist = i << 3;  // Make dist i * 8 to get bits from bytes
+    a = (a >> dist) & 0xff;  // Shift over until byte you want is on the least significant edge, then 0 out the rest
 
     return a;
 }
@@ -366,14 +376,15 @@ int one_if_reversible(int a) {
     int one2 = 0xcc | (0xcc << 8);  // 0b00000000 00000000 11001100 11001100
     int one1 = 0xaa | (0xaa << 8);  // 0b00000000 00000000 10101010 10101010
 
-    int b3_2 = (a >> 16) & one16;  // Of bytes 0-3
+    int b3_2 = (a >> 16) & one16;  // b3_2 is bytes 2 and 3 of bytes 0 through 3 where 0 is least significant
     int p;
 
     b3_2 = (b3_2 >> 8) | ((b3_2 & 0xff) << 8);  // Swap bytes 2 and 3
-    b3_2 = ((b3_2 & one4) >> 4) | ((b3_2 & ~one4) << 4);  // Swap... kinda recursively you get it
+    b3_2 = ((b3_2 & one4) >> 4) | ((b3_2 & ~one4) << 4);  // Swap subbytes... kinda recursively you get it
     b3_2 = ((b3_2 & one2) >> 2) | ((b3_2 & ~one2) << 2);
-    b3_2 = ((b3_2 & one1) >> 1) | ((b3_2 & ~one1) << 1);
-    p = ((a & one16) ^ (b3_2)) + 1;
+    b3_2 = ((b3_2 & one1) >> 1) | ((b3_2 & ~one1) << 1);  // At the end, all of b3_2 has been reversed
+    p = ((a & one16) ^ (b3_2)) + 1;  // If reversed two most significant bytes are the same reversed as the two least
+    // significant bytes, they xor to zero
     return !(p + (~1 + 1));
 }  //
 /*
@@ -681,7 +692,24 @@ int negative_one(void) {
  *   Difficulty: 4
  */
 int boundary_add(int a, int b) {
-    ;
+    // create the sum and get the sign of the sum
+    int sum = a + b;
+    int sums = sum >> 31;
+    // get the signs of a and b
+    int schka = a >> 31;
+    int schkb = b >> 31;
+    // compare whether 2 negative nums stay negative after sum and whether two positive nums saty positive after sum
+    int nchk = schka & schkb;
+    int nover = ~sums & nchk;
+    int pchk = (schka | schkb) ^ ~0x00;
+    int pover = sums & pchk;
+    // if + overflow occurs set pover to max and if - overflow occurs set nover to min, if either occurs sum is set to 0
+    int min = (0x01 << 31);
+    sum = sum & (~pover) & (~nover);
+    nover = nover & min;
+    pover = pover & ~min;
+    // fuse sum, pover, and nover
+    return sum | nover | pover;
 }
 /* 
  *  sign_bit - 
@@ -728,7 +756,12 @@ int twos_complement_min(void) {
  *   Difficulty: 2
  */
 unsigned real_absolute_value(unsigned r) {
-    return 2;
+    int exp = (r<<1)>>24;
+    if(!(exp^0xFF) && r<<9){
+        return r;
+    }
+    r = r<<1;
+    return r>>1;
 }
 /* 
  *   real_to_int -
@@ -787,18 +820,21 @@ unsigned int_to_float(int i) {
     unsigned exponent = 150;
     unsigned missing = 0;
     int place = 0;
-    int leftmost = 0;
+    int halfway;
+    int roundup = 0;
 
-    if (i == 0) {  // Special cases for i is 0 or minimum
+    // SPECIAL CASES for i is 0 or minimum
+    if (i == 0) {
         return 0;
     }
     if (i == 0x80000000) {
         return 0xcf000000;
     }
 
+    // GETTING BIT SIGN AND MAKING I POSITIVE
     sign = i & 0x80000000;  // Gets sign bit but leaves in place
     if (sign) {
-        i = i * -1;
+        i = -i;
     }
 
     if (i > 0xffffff) {
@@ -806,15 +842,38 @@ unsigned int_to_float(int i) {
             missing += ((i & 1) << place++);
             i = i >> 1;
             exponent++;
-            // TODO: add something that adds to missing and then calculates if it was bigger than the step at the end
         }
-        if (place > 2) {
-            missing = missing >> (place - 2);
-        }
-        if (missing > 1) {
-            i++;
-        } else {
-            i--;
+        if (missing > 0) {
+            halfway = (1 << (place - 1));
+            if (missing < halfway) {
+            } else if (missing == halfway) {
+                if (i & 1) {
+                    roundup = 1;
+                }
+            } else {
+                roundup = 1;
+            }
+            if (roundup) {
+                if (i != 0xffffff) {
+                    if (missing == halfway) {
+                        if (i & 1) {
+                            i++;
+                        }
+                    } else {
+                        i++;
+                    }
+                } else {
+                    if (missing == halfway) {
+                        if (i & 1) {
+                            i = 1 << 23;
+                            exponent++;
+                        }
+                    } else {
+                        i = 1 << 23;
+                        exponent++;
+                    }
+                }
+            }
         }
     } else if (i < 0x800000) {
         while (i < 0x800000) {
