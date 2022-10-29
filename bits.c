@@ -428,8 +428,8 @@ int sign_flip(int a) {
  */
 int byte_replace(int a, int i, int c) {
     int iBits = (i << 3);  // Change i from byte to bits
-    int eraser = ~(0xff << iBits);
-    a = (a & eraser) | (c << iBits);
+    int eraser = ~(0xff << iBits);  // Make a mask to erase the ith byte
+    a = (a & eraser) | (c << iBits);  // Erase ith byte and or with c to get desired byte in desired spot
 
     return a;
 }
@@ -444,23 +444,21 @@ int byte_replace(int a, int i, int c) {
  *   Difficulty: 3
  */
 int wheel_right(int a, int i) {
-    //int s = ((notI + 1) | i) >> 31;
-    int thirtytwoMinusI = 0x41 + (~i);
-    //int iMinusOne = i + (~1) + 1;
+    int thirtytwoMinusI = 0x41 + (~i);  // As name suggests, 32 - i
 
-    int left = (a << thirtytwoMinusI);
+    int left = (a << thirtytwoMinusI);  // Get the left side of the final product
 
     // GRAB BIT THAT WOULD BE LOST
     int lost = (a >> i) & 1;
     // SHIFT BY 1
     int right = a >> 1;
-    // ZERO OUT FIRST
+    // ZERO OUT FIRST so that we can shift by n and not have fill in with 1s (had to shift one first)
     right = right & (~(1 << 31));
     // SHIFT BY N
     right = right >> i;
     // SHIFT BACK ONE
     right = right << 1;
-    // OR WITH LOST BIT
+    // OR WITH LOST BIT to bring back the total data
     right = right | lost;
 
     return left | right;
@@ -477,10 +475,10 @@ int wheel_right(int a, int i) {
  */
 int left_fill(int i) {
     int allOne = ~0;
-    int iComp = 33 + (~i);
-    int halfC1 = iComp >> 1;
+    int iComp = 33 + (~i);  // 32 - i
+    int halfC1 = iComp >> 1;  // Have to break how far you shift in two because going 32 in one go is unpredictable
     int halfC2 = (iComp + 1) >> 1;
-    int mask = allOne << halfC1;
+    int mask = allOne << halfC1;  // Shift halfway twice and there you go!
     mask = mask << halfC2;
 
     return mask;
@@ -498,7 +496,8 @@ int left_fill(int i) {
  */
 int absolute_value(int a) {
     int isNegative = a >> 31;  // all 1 when a < 0, all 0 when a >= 0
-    a = (a ^ isNegative) + (isNegative & 1);
+    a = (a ^ isNegative) + (isNegative & 1);  // a ^ isNegative will ~a when a is negative; isNegative & 1 will add 1 to
+    // a when a is negative, thus completing the negation formula but only when a is negative
 
     return a;
 }
@@ -518,11 +517,11 @@ int add_no_overflow(int a, int b) {
     int bSign = b >> 31;
     int sumSign = rawSum >> 31;
 
-    int abDiff = aSign ^ bSign;
-    int asDiff = aSign ^ sumSign;
-    int bsDiff = bSign ^ sumSign;
+    int abDiff = aSign ^ bSign;  // 0 when a and b same sign, all 1 otherwise
+    int asDiff = aSign ^ sumSign;  // 0 when a and sum same sign, all 1 otherwise
+    int bsDiff = bSign ^ sumSign;  // you get the idea...
 
-    return !!abDiff | (!asDiff & !bsDiff);
+    return !!abDiff | (!asDiff & !bsDiff);  //
 }
 /*
  *  denominator_2_to_n -
