@@ -756,11 +756,12 @@ int real_to_int(unsigned r) {
  *   Maximum operators: 30
  *   Difficulty: 4
  */
-unsigned int_to_float(int i) {  // 0x00800000
+unsigned int_to_float(int i) {
     unsigned sign;
-    unsigned exponent = 150;  // 00000000 00000000 00000000 011111111
-
-    // 0 10000000 1000000 00000000 00000000
+    unsigned exponent = 150;
+    unsigned missing = 0;
+    int place = 0;
+    int leftmost = 0;
 
     if (i == 0) {  // Special cases for i is 0 or minimum
         return 0;
@@ -769,15 +770,25 @@ unsigned int_to_float(int i) {  // 0x00800000
         return 0xcf000000;
     }
 
-    sign = i & 0x80000000;  // { (i < 0) * 0x80000000 } Gets sign bit but leaves in place
+    sign = i & 0x80000000;  // Gets sign bit but leaves in place
     if (sign) {
         i = i * -1;
     }
 
     if (i > 0xffffff) {
         while (i > 0xffffff) {
+            missing += ((i & 1) << place++);
             i = i >> 1;
             exponent++;
+            // TODO: add something that adds to missing and then calculates if it was bigger than the step at the end
+        }
+        if (place > 2) {
+            missing = missing >> (place - 2);
+        }
+        if (missing > 1) {
+            i++;
+        } else {
+            i--;
         }
     } else if (i < 0x800000) {
         while (i < 0x800000) {
