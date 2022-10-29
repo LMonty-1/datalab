@@ -758,39 +758,37 @@ int real_to_int(unsigned r) {
  */
 unsigned int_to_float(int i) {  // 0x00800000
     unsigned sign;
-    unsigned exponent = 127;  // 00000000 00000000 00000000 011111111
+    unsigned exponent = 150;  // 00000000 00000000 00000000 011111111
 
     // 0 10000000 1000000 00000000 00000000
 
-    /* 00000000 01111111 11111111 11111111 = while loop
-     * 00000000 10000000 00000000 00000000
-     * 00000000 01000000 00000000 00000000
-     *
-     * 0x40400000
-     * 0 10000000 1000000 00000000 00000000
-     *
-     * 0x4b000000
-     * 0 10010110 0000000 00000000 00000000
-     */
-
-    if (i == 0) {
+    if (i == 0) {  // Special cases for i is 0 or minimum
         return 0;
     }
     if (i == 0x80000000) {
         return 0xcf000000;
     }
 
-    sign = (i < 0) * 0x80000000;
-    if (i < 0) {
+    sign = i & 0x80000000;  // { (i < 0) * 0x80000000 } Gets sign bit but leaves in place
+    if (sign) {
         i = i * -1;
     }
 
-    while (i > 0x7fffff) {
-        i = i/2;
-        exponent++;
+    if (i > 0xffffff) {
+        while (i > 0xffffff) {
+            i = i >> 1;
+            exponent++;
+        }
+    } else if (i < 0x800000) {
+        while (i < 0x800000) {
+            i = i << 1;
+            exponent--;
+        }
     }
 
-    exponent = exponent * 8388608;
+    i = i - 0x800000;
+
+    exponent = exponent << 23;
     return sign + exponent + i;
 }
 /* 
