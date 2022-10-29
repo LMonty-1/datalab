@@ -536,7 +536,7 @@ int add_no_overflow(int a, int b) {
  *   Maximum operators: 15
  *   Difficulty: 2
  */
-int denominator_2_to_n(int a, int n) {  // TODO: FIX THIS
+int denominator_2_to_n(int a, int n) {
     int isNeg = (a >> 31);
     int quotient = a >> n;
     int isNotEven = !!((quotient << n) ^ a);
@@ -654,7 +654,8 @@ int one_if_max_twos_complement(int a) {
  */
 int one_if_min_twos_complement(int a) {
     int b = ~a;
-    return !(~(b + !(b+1)^(b+1)));  // Monty also did this one
+    int negA = b + 1;
+    return !(~(b + !negA ^ negA));  // Monty also did this one
 }
 /*
  * one_if_zero - 
@@ -758,7 +759,8 @@ int twos_complement_min(void) {
  *   Maximum operators: 10
  *   Difficulty: 2
  */
-unsigned real_absolute_value(unsigned r) {  // TODO
+unsigned real_absolute_value(unsigned r) {
+    // Can't remember who did this one and I definitely don't understand it now if I did it
     int exp = (r<<1)>>24;
     if(!(exp^0xff) && r<<9){
         return r;
@@ -842,7 +844,7 @@ unsigned int_to_float(int i) {
         i = -i;
     }
 
-    // Making i 24 bits
+    // Making i 24 bits and rounding to nearest even
     if (i > 0xffffff) {  // If i is too large and must be compressed by increasing exponent
         while (i > 0xffffff) {
             missing += ((i & 1) << place++);  // Add the missing bits to missing so we can round later
@@ -855,7 +857,7 @@ unsigned int_to_float(int i) {
             if (missing < halfway) {  // If truncated portion is less than half, round down
             } else if (missingIsHalf) { // If trunc is half exactly, round to nearest half
                 if (i & 1) {
-                    roundup = 1;
+                    roundup = 1;  // round up if last bit is already 1
                 }
             } else {  // If trunc > half, round up
                 roundup = 1;
@@ -870,12 +872,12 @@ unsigned int_to_float(int i) {
                 }
             }
         }
-    } else if (i < 0x800000) {  // If i is too small and must be expanded by subtracting from exponent
-        while (i < 0x800000) {  // TODO: Replace if?
+    } else  // If i is too small and must be expanded by subtracting from exponent
+        while (i < 0x800000) {
             i = i << 1;
             exponent--;
         }
-    }
+
 
     i = i - 0x800000;  // Remove leading one
 
