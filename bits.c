@@ -521,7 +521,9 @@ int add_no_overflow(int a, int b) {
     int asDiff = aSign ^ sumSign;  // 0 when a and sum same sign, all 1 otherwise
     int bsDiff = bSign ^ sumSign;  // you get the idea...
 
-    return !!abDiff | (!asDiff & !bsDiff);  //
+    // If a and b are dif signs, works fine,
+    // and if a and b both have same sign as their sum, it means it didn't over/underflow
+    return (abDiff | ~(asDiff | bsDiff)) & 1;
 }
 /*
  *  denominator_2_to_n -
@@ -555,10 +557,10 @@ int denominator_2_to_n(int a, int n) {  // TODO: FIX THIS
  */
 int quick_seventy_five_percent(int a) {
     int a2 = a + a;
-    int a3 = a2 + a;
-    int isNeg = (a3 >> 31) & 1;
+    int a3 = a2 + a;  // Simply add it to itself 3 times
+    int isNeg = (a3 >> 31) & 1;  // Checks to see if it was negative and needed to be rounded up
     int isntEven = !!(a3 & 3);
-    return (a3 >> 2) + (isNeg & isntEven);
+    return (a3 >> 2) + (isNeg & isntEven);  // Divides by 4 and adds back 1 if it needed to be rounded up
 }
 /*
  * one_if_ascii -
