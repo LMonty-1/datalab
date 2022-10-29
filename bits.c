@@ -383,9 +383,9 @@ int one_if_reversible(int a) {
     b3_2 = ((b3_2 & one4) >> 4) | ((b3_2 & ~one4) << 4);  // Swap subbytes... kinda recursively you get it
     b3_2 = ((b3_2 & one2) >> 2) | ((b3_2 & ~one2) << 2);
     b3_2 = ((b3_2 & one1) >> 1) | ((b3_2 & ~one1) << 1);  // At the end, all of b3_2 has been reversed
-    p = ((a & one16) ^ (b3_2)) + 1;  // If reversed two most significant bytes are the same reversed as the two least
+    p = ((a & one16) ^ (b3_2));  // If reversed two most significant bytes are the same reversed as the two least
     // significant bytes, they xor to zero
-    return !(p + (~1 + 1));
+    return !p;  // return the opposite of p (if p was 0, it means it was a palindrome, and we want to return 1)
 }  //
 /*
  * lsb_bit_mask -
@@ -400,6 +400,7 @@ int one_if_reversible(int a) {
 int lsb_bit_mask(int a) {
     int amin = ((~a) + 1);
     amin = amin & a;
+    // Strange property I observed - and (-a) with a and all the digits will be different except the least sig 1 bit
 
     return amin;
 }
@@ -413,7 +414,7 @@ int lsb_bit_mask(int a) {
  *   Difficulty: 2
  */
 int sign_flip(int a) {
-    return (~a) + 1;
+    return (~a) + 1;  // Pretty simple formula
 }
 /*
  * byte_replace(a,i,c) - Replace byte i in a with c
@@ -426,9 +427,8 @@ int sign_flip(int a) {
  *   Difficulty: 3
  */
 int byte_replace(int a, int i, int c) {
-    int iBits = (i << 3);
-    int eraser;
-    eraser = ~(0xff << iBits);
+    int iBits = (i << 3);  // Change i from byte to bits
+    int eraser = ~(0xff << iBits);
     a = (a & eraser) | (c << iBits);
 
     return a;
